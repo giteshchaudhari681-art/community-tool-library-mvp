@@ -1,6 +1,12 @@
 {
-  "nextId": 2,
+  "nextId": 3,
   "tools": [
+    {
+      "id": 2,
+      "name": "Live Ladder",
+      "description": "Verified on deployed backend",
+      "isAvailable": true
+    },
     {
       "id": 1,
       "name": "Deployment Test Drill",
