@@ -5,7 +5,7 @@
       "id": 2,
       "name": "Live Ladder",
       "description": "Verified on deployed backend",
-      "isAvailable": true
+      "isAvailable": false
     },
     {
       "id": 1,
