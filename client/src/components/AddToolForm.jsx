@@ -18,14 +18,17 @@ const AddToolForm = ({ onToolAdded }) => {
         body: JSON.stringify({ name, description }),
       });
 
-      if (response.ok) {
-        setSubmitMessage('✅ Tool listed successfully!');
-        setName('');
-        setDescription('');
-        onToolAdded();
+      if (!response.ok) {
+        throw new Error('Tool creation failed');
       }
+
+      const createdTool = await response.json();
+      setSubmitMessage('Tool listed successfully.');
+      setName('');
+      setDescription('');
+      onToolAdded(createdTool);
     } catch (error) {
-      setSubmitMessage('❌ Error listing tool.');
+      setSubmitMessage('Error listing tool.');
     } finally {
       setIsSubmitting(false);
     }
@@ -33,7 +36,7 @@ const AddToolForm = ({ onToolAdded }) => {
 
   return (
     <div className="add-tool-form">
-      <h3>📋 List a New Tool</h3>
+      <h3>List a New Tool</h3>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label htmlFor="name">Tool Name</label>
