@@ -47,6 +47,7 @@ Everything else is secondary to those flows.
 - Updated form submission handling so newly created tools appear immediately without a second fetch.
 - Cleaned up user-facing copy in the UI and removed broken encoded characters from edited components.
 - Ordered tool results by newest first in the API to keep the newest listing visible at the top.
+- Added a deployment-friendly storage layer in [`server/toolStore.js`](./server/toolStore.js). Local development still uses Prisma/PostgreSQL, while the hosted Vercel backend uses GitHub-backed JSON storage so the public demo can persist tool state without requiring an additional managed database account in this environment.
 
 ## 4. Verification
 - `npm run build` succeeds in [`client`](./client).
@@ -54,7 +55,7 @@ Everything else is secondary to those flows.
 - The backend starts successfully and responds on `GET /health`.
 
 ## 5. Deployment / Submission Notes
-- **Frontend Deployment Link**: Not completed in this environment.
-- **Backend Deployment Link**: Not completed in this environment.
-- **Pull Request Notes**: The project is ready for commit and push once GitHub access is available for the target repository.
+- **Frontend Deployment Link**: https://client-five-khaki-83.vercel.app
+- **Backend Deployment Link**: https://server-sepia-ten-65.vercel.app
+- **Pull Request Link**: https://github.com/giteshchaudhari681-art/community-tool-library-mvp/pull/1
 - **Video Link**: Not created in this environment.

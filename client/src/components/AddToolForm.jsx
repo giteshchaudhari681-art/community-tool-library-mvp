@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { getApiUrl } from '../api';
 
 const AddToolForm = ({ onToolAdded }) => {
   const [name, setName] = useState('');
@@ -12,7 +13,7 @@ const AddToolForm = ({ onToolAdded }) => {
     setSubmitMessage('');
 
     try {
-      const response = await fetch('/api/tools', {
+      const response = await fetch(getApiUrl('/tools'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, description }),

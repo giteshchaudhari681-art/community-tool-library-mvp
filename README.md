@@ -48,3 +48,4 @@ The Vite app runs on `http://localhost:3000`.
 - The frontend uses the Vite proxy to forward `/api` requests to the backend.
 - Prisma 7 is configured through `server/prisma.config.js`, and the runtime client lives in `server/prismaClient.js`.
 - A health check is available at `GET /health`.
+- The hosted demo is deployed on Vercel. Local development uses Prisma with PostgreSQL, while the deployed backend uses GitHub-backed storage through `server/toolStore.js` to persist the MVP tool data online.

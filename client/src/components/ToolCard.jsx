@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { getApiUrl } from '../api';
 
 const ToolCard = ({ tool, onUpdate }) => {
   const [borrowError, setBorrowError] = useState(false);
@@ -9,7 +10,7 @@ const ToolCard = ({ tool, onUpdate }) => {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`/api/tools/${tool.id}`, { method: 'PATCH' });
+      const response = await fetch(getApiUrl(`/tools/${tool.id}`), { method: 'PATCH' });
 
       if (!response.ok) {
         throw new Error('Update failed');

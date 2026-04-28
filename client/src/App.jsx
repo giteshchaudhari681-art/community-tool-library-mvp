@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import ToolList from './components/ToolList';
 import AddToolForm from './components/AddToolForm';
+import { getApiUrl } from './api';
 import './App.css';
 
 function App() {
@@ -13,7 +14,7 @@ function App() {
       setLoading(true);
       setError('');
 
-      const response = await fetch('/api/tools');
+      const response = await fetch(getApiUrl('/tools'));
       if (!response.ok) {
         throw new Error('Failed to fetch tools');
       }

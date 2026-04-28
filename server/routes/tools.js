@@ -1,12 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const prisma = require('../prismaClient');
+const toolStore = require('../toolStore');
 
 router.get('/tools', async (req, res) => {
   try {
-    const tools = await prisma.tool.findMany({
-      orderBy: { id: 'desc' },
-    });
+    const tools = await toolStore.listTools();
     res.json(tools);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -22,14 +20,7 @@ router.post('/tools', async (req, res) => {
   }
 
   try {
-    const tool = await prisma.tool.create({
-      data: {
-        name,
-        description,
-        isAvailable: true,
-      },
-    });
-
+    const tool = await toolStore.createTool({ name, description });
     res.status(201).json(tool);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -44,16 +35,10 @@ router.patch('/tools/:id', async (req, res) => {
   }
 
   try {
-    const existingTool = await prisma.tool.findUnique({ where: { id } });
-
-    if (!existingTool) {
+    const updatedTool = await toolStore.toggleToolAvailability(id);
+    if (!updatedTool) {
       return res.status(404).json({ message: 'Tool not found' });
     }
-
-    const updatedTool = await prisma.tool.update({
-      where: { id },
-      data: { isAvailable: !existingTool.isAvailable },
-    });
 
     res.json(updatedTool);
   } catch (error) {
