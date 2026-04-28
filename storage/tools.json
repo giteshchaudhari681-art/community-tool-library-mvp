@@ -1,4 +1,11 @@
 {
-  "nextId": 1,
-  "tools": []
+  "nextId": 2,
+  "tools": [
+    {
+      "id": 1,
+      "name": "Deployment Test Drill",
+      "description": "Temporary deployment verification tool",
+      "isAvailable": true
+    }
+  ]
 }
