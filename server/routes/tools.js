@@ -1,47 +1,46 @@
 const express = require('express');
 const router = express.Router();
-const prisma = require('../prisma.config');
+const toolStore = require('../toolStore');
 
-// GET /tools - Fetch all tools
 router.get('/tools', async (req, res) => {
   try {
-    const tools = await prisma.tool.findMany();
+    const tools = await toolStore.listTools();
     res.json(tools);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
 
-// BUG 1: Tool Creation Does Not Persist
-// The bug here is that we create the tool in memory but don't call Prisma.
-router.post("/tools", async (req, res) => {
-  const toolData = {
-    name: req.body.name,
-    description: req.body.description,
-    isAvailable: true
-  };
+router.post('/tools', async (req, res) => {
+  const name = req.body.name?.trim();
+  const description = req.body.description?.trim();
 
-  // THE BUG: We skip prisma.tool.create() and return a mock object
-  const tool = { id: Date.now(), ...toolData };
+  if (!name || !description) {
+    return res.status(400).json({ message: 'Name and description are required' });
+  }
 
-  res.status(201).json(tool);
+  try {
+    const tool = await toolStore.createTool({ name, description });
+    res.status(201).json(tool);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 });
 
-// PATCH /tools/:id - Borrow/Return tool
-router.patch("/tools/:id", async (req, res) => {
-  const { id } = req.params;
+router.patch('/tools/:id', async (req, res) => {
+  const id = parseInt(req.params.id, 10);
+
+  if (Number.isNaN(id)) {
+    return res.status(400).json({ message: 'Invalid tool id' });
+  }
+
   try {
-    const existingTool = await prisma.tool.findUnique({ where: { id: parseInt(id) } });
-    
-    if (existingTool) {
-      const updatedTool = await prisma.tool.update({
-        where: { id: parseInt(id) },
-        data: { isAvailable: !existingTool.isAvailable }
-      });
-      res.json(updatedTool);
-    } else {
-      res.status(404).json({ message: "Tool not found" });
+    const updatedTool = await toolStore.toggleToolAvailability(id);
+    if (!updatedTool) {
+      return res.status(404).json({ message: 'Tool not found' });
     }
+
+    res.json(updatedTool);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

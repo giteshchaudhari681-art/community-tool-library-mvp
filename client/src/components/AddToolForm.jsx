@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { getApiUrl } from '../api';
 
 const AddToolForm = ({ onToolAdded }) => {
   const [name, setName] = useState('');
@@ -12,20 +13,23 @@ const AddToolForm = ({ onToolAdded }) => {
     setSubmitMessage('');
 
     try {
-      const response = await fetch('/api/tools', {
+      const response = await fetch(getApiUrl('/tools'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, description }),
       });
 
-      if (response.ok) {
-        setSubmitMessage('✅ Tool listed successfully!');
-        setName('');
-        setDescription('');
-        onToolAdded();
+      if (!response.ok) {
+        throw new Error('Tool creation failed');
       }
+
+      const createdTool = await response.json();
+      setSubmitMessage('Tool listed successfully.');
+      setName('');
+      setDescription('');
+      onToolAdded(createdTool);
     } catch (error) {
-      setSubmitMessage('❌ Error listing tool.');
+      setSubmitMessage('Error listing tool.');
     } finally {
       setIsSubmitting(false);
     }
@@ -33,7 +37,7 @@ const AddToolForm = ({ onToolAdded }) => {
 
   return (
     <div className="add-tool-form">
-      <h3>📋 List a New Tool</h3>
+      <h3>List a New Tool</h3>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label htmlFor="name">Tool Name</label>

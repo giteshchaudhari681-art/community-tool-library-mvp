@@ -1,11 +1,9 @@
-const { PrismaClient } = require('@prisma/client');
+require('dotenv/config');
+const { defineConfig, env } = require('prisma/config');
 
-const prismaClientSingleton = () => {
-    return new PrismaClient();
-};
-
-if (!global.prismaGlobal) {
-    global.prismaGlobal = prismaClientSingleton();
-}
-
-module.exports = global.prismaGlobal;
+module.exports = defineConfig({
+  schema: 'prisma/schema.prisma',
+  datasource: {
+    url: env('DATABASE_URL'),
+  },
+});

@@ -1,43 +1,51 @@
 # Community Tool Library
 
-## 🛠️ Overview
-The **Community Tool Library** is a local neighborhood platform where residents can share their tools.
+## Overview
+Community Tool Library is a neighborhood sharing app where residents can list tools and borrow them from each other.
 
----
+## MVP
+The restored MVP supports:
 
-## 🚀 Getting Started
+- Add a tool
+- View all tools
+- Borrow a tool
+- Return a tool
 
-### 1. Database Setup (PostgreSQL)
-Ensure you have PostgreSQL running. Create a database named `tool_library_broken`.
-In `server/.env`, set your connection string:
+## Local Setup
+
+### 1. Configure the database
+Create a PostgreSQL database and set the connection string in `server/.env`:
+
 ```bash
 DATABASE_URL="postgresql://postgres:postgres@localhost:5432/tool_library_broken?schema=public"
 ```
 
-### 2. Server Setup (Prisma)
+You can copy `server/.env.example` to `server/.env` and edit it.
+
+### 2. Start the backend
+
 ```bash
 cd server
 npm install
-npx prisma db push  # To sync database schema
+npx prisma generate
+npx prisma db push
 node index.js
 ```
-*Runs on http://localhost:5000*
 
-### 3. Client Setup
+The API runs on `http://localhost:5000`.
+
+### 3. Start the frontend
+
 ```bash
 cd client
 npm install
 npm run dev
 ```
-*Runs on http://localhost:3000*
 
----
+The Vite app runs on `http://localhost:3000`.
 
-## � Current Status: "It's Broken"
-The development team lost focus. Identify the MVP and fix the 5 major bugs documented in `Changes.md`.
-
-### Hints:
-- Check `useEffect` in `App.jsx` (Infinite loop).
-- Check `POST /api/tools` in `server/routes/tools.js` (Does it actually call Prisma?).
-- Check `PATCH` endpoint path in `ToolCard.jsx`.
-- Check state management in `App.jsx` (Immutability).
+## Notes
+- The frontend uses the Vite proxy to forward `/api` requests to the backend.
+- Prisma 7 is configured through `server/prisma.config.js`, and the runtime client lives in `server/prismaClient.js`.
+- A health check is available at `GET /health`.
+- The hosted demo is deployed on Vercel. Local development uses Prisma with PostgreSQL, while the deployed backend uses GitHub-backed storage through `server/toolStore.js` to persist the MVP tool data online.

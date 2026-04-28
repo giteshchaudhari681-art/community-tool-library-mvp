@@ -1,31 +1,61 @@
-# Project Changes & Debugging Log
-
-As you work through fixing the Community Tool Library, you must document your findings here. This helps track your problem-solving process.
+# Community Tool Library MVP Recovery
 
 ## 1. MVP Identification
-List the core features that *must* work for this app to be considered functional for users.
+The minimum viable product for this app is:
 
-*(Write your answer here)*
+- Users can add a tool with a name and description.
+- Users can view all listed tools.
+- Users can mark a tool as borrowed and returned.
+
+Everything else is secondary to those flows.
 
 ## 2. Bug Fixes
-For every major bug you find, document:
-- **The Symptom**: What was happening?
-- **The Cause**: Why was it happening? (Point to specific files/lines)
-- **The Fix**: What did you change to fix it?
 
-### Bug 1: [Name of Bug]
-- **Symptom**: 
-- **Cause**: 
-- **Fix**: 
+### Bug 1: Repeated fetching caused an infinite render loop
+- **Symptom**: The frontend kept refetching tools and re-rendering continuously.
+- **Cause**: [`client/src/App.jsx`](./client/src/App.jsx) called `fetchTools()` inside `useEffect` without a dependency array.
+- **Fix**: Added `[]` so the initial fetch runs once on mount. I also added basic fetch error handling so the UI can surface a load failure cleanly.
 
-### Bug 2: [Name of Bug]
-- **Symptom**: 
-- **Cause**: 
-- **Fix**: 
+### Bug 2: Added tools were never saved to the database
+- **Symptom**: Listing a new tool appeared to succeed, but refreshing the page removed it.
+- **Cause**: [`server/routes/tools.js`](./server/routes/tools.js) returned a mock object from `POST /api/tools` instead of calling Prisma.
+- **Fix**: Replaced the mock response with `prisma.tool.create(...)`, trimmed request fields, and returned validation errors for missing input.
 
-*(Add more as needed)*
+### Bug 3: Tool cards used an invalid React key
+- **Symptom**: Tool list rendering was unstable and React could not track items correctly.
+- **Cause**: [`client/src/components/ToolList.jsx`](./client/src/components/ToolList.jsx) used `tool.index`, which does not exist.
+- **Fix**: Switched the key to `tool.id`.
+
+### Bug 4: Borrow/return requests called the wrong endpoint and ignored the server response
+- **Symptom**: Clicking Borrow or Return failed, or the UI stayed out of sync with the backend.
+- **Cause**: [`client/src/components/ToolCard.jsx`](./client/src/components/ToolCard.jsx) called `/api/tool/:id` instead of `/api/tools/:id`, then built a local object instead of using the updated Prisma record returned by the server.
+- **Fix**: Corrected the route to `/api/tools/:id` and updated the card by using the JSON returned from the backend.
+
+### Bug 5: Tool state was mutated directly in React
+- **Symptom**: Borrow/return changes were not reflected reliably in the UI.
+- **Cause**: [`client/src/App.jsx`](./client/src/App.jsx) mutated the existing `tools` array in place and never called `setTools` with a new array reference.
+- **Fix**: Replaced mutation with immutable state updates using `map`, and added optimistic list insertion when a tool is created successfully.
+
+### Bug 6: Prisma CLI and runtime configuration were conflicting
+- **Symptom**: The backend could not generate Prisma Client, and the server failed because `server/prisma.config.js` was being treated as CLI config.
+- **Cause**: The file name `prisma.config.js` is reserved by Prisma 7, but the project used it as an application singleton. In addition, Prisma 7 expects the datasource URL in config and requires an adapter-based client setup.
+- **Fix**: Split runtime access into [`server/prismaClient.js`](./server/prismaClient.js), converted [`server/prisma.config.js`](./server/prisma.config.js) into actual Prisma CLI config, moved the datasource URL into that config, and instantiated Prisma with `@prisma/adapter-pg`.
 
 ## 3. Improvements
-What did you do to make the code cleaner or more robust? (e.g., UI improvements, structure changes).
+- Added [`server/.env.example`](./server/.env.example) so the backend setup is explicit.
+- Added a `/health` endpoint in [`server/index.js`](./server/index.js) for quick startup checks.
+- Updated form submission handling so newly created tools appear immediately without a second fetch.
+- Cleaned up user-facing copy in the UI and removed broken encoded characters from edited components.
+- Ordered tool results by newest first in the API to keep the newest listing visible at the top.
+- Added a deployment-friendly storage layer in [`server/toolStore.js`](./server/toolStore.js). Local development still uses Prisma/PostgreSQL, while the hosted Vercel backend uses GitHub-backed JSON storage so the public demo can persist tool state without requiring an additional managed database account in this environment.
 
-*(Write your answer here)*
+## 4. Verification
+- `npm run build` succeeds in [`client`](./client).
+- `npx prisma generate` succeeds in [`server`](./server).
+- The backend starts successfully and responds on `GET /health`.
+
+## 5. Deployment / Submission Notes
+- **Frontend Deployment Link**: https://client-five-khaki-83.vercel.app
+- **Backend Deployment Link**: https://server-sepia-ten-65.vercel.app
+- **Pull Request Link**: https://github.com/giteshchaudhari681-art/community-tool-library-mvp/pull/1
+- **Video Link**: Not created in this environment.
