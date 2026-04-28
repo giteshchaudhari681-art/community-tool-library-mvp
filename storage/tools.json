@@ -5,7 +5,7 @@
       "id": 1,
       "name": "Deployment Test Drill",
       "description": "Temporary deployment verification tool",
-      "isAvailable": true
+      "isAvailable": false
     }
   ]
 }
